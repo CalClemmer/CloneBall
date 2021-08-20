@@ -17,6 +17,7 @@ let arrBlocks = [];
 let globalCount = 0;
 let blockWidth = 60;
 let blockHeight = 25;
+let score = 0;
 
 // =================INITIAL LOAD====================
 document.addEventListener('DOMContentLoaded', function() {
@@ -244,8 +245,18 @@ function createGridBlocksRand(x, y, xNum, yNum, hitMax) {
 
 function createRandomFallingBlocks(frequency, hitMax, fallSpeed) {
     if (globalCount % frequency === 0) {
-        block = new Block(10+Math.random()*(580-blockWidth), -20, blockWidth, blockHeight, 'white', randomInt(hitMax), fallSpeed)
-        arrBlocks.push(block);
+        let escape = 0;
+        while (escape < 15) {
+            block = new Block(10+Math.random()*(580-blockWidth), -20, blockWidth, blockHeight, 'white', randomInt(hitMax), fallSpeed)
+            let closest = findClosest(block.x, block.y, arrBlocks, 'distance')
+        
+            if (closest > blockWidth+15 || closest === undefined) {
+                arrBlocks.push(block);
+                escape = 1000000;
+            } else {
+                escape++
+            }
+        }
     }
 }
 
@@ -274,7 +285,12 @@ if (arrBalls.length > 0 && arr.length > 0)
                 //arrBalls[i].cooldown = 5;
                 
                 if (arr === arrBlocks) {
+
                     arrBlocks[j].hits--
+                    // increase score on block hit 
+                    score += 1
+                    document.getElementById('score').innerText = 'Score: ' + score;
+
                     if (arrBlocks[j].hits === 0) {
                         newRandomBall(
                             arrBlocks[j].x + 0.5*arrBlocks[j].width, 
@@ -359,4 +375,28 @@ function blockColor(num) {
             return '#8888FF'
     } 
     return '#AAA' 
+}
+
+function findClosest(x, y, arr, value) {
+    //x = x + width/2;
+    //y = y + width/2;
+    let closest = [x, y, 10000]; // x, y, and distance
+
+    // Make sure there are actually enemies 
+    if (arr.length === 0 ) {
+        return undefined
+    }
+
+    // Simple pythagorean theorem for distance 
+    for (let i = 0; i < arr.length; i++) {
+        let distance = ((arr[i].x - x) ** 2 + (arr[i].y - y) ** 2) ** 0.5;
+        if (distance < closest[2]) {
+            closest = [arr[i].x, arr[i].y, distance, arr[i].speed]
+        }
+    }
+    if (value === 'distance') {
+        return closest[2]; 
+    } else {
+        return closest;
+    }
 }
