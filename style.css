@@ -35,7 +35,7 @@ html,body {
   #container {
   width: 600px;
   /* height: 70vh; */
-  background-color: rgb(53, 53, 113); 
+  background-color: rgb(53, 53, 113);
   margin: 0 auto;
   padding: 0em;
   display: grid;

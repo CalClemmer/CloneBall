@@ -18,6 +18,9 @@ let globalCount = 0;
 let blockWidth = 60;
 let blockHeight = 25;
 let score = 0;
+// these are for the block numbers
+let minNum = 1;
+let maxNum = 2;
 
 // =================INITIAL LOAD====================
 document.addEventListener('DOMContentLoaded', function() {
@@ -187,6 +190,10 @@ function gameLoop() {
     arrBlocks.forEach(element => element.render());
     arrBalls.forEach(element => element.render());
     arrWalls.forEach(element => element.render());
+    // despawn everything offscreen 
+
+    despawn(arrBalls);
+    despawn(arrBlocks);
 
     // collision detection everything 
     detectBallHit(arrPaddles);
@@ -196,7 +203,7 @@ function gameLoop() {
     document.addEventListener('keyup', stopMovement)
     // arrSpinners.forEach(element => element.render());
     // arrSquares.forEach(element => element.render());
-    createRandomFallingBlocks(50, 2, 0.3)
+    createRandomFallingBlocks(30, minNum, maxNum, 0.3)
     globalCount++;
     }
 }
@@ -243,11 +250,12 @@ function createGridBlocksRand(x, y, xNum, yNum, hitMax) {
     }
 }
 
-function createRandomFallingBlocks(frequency, hitMax, fallSpeed) {
+function createRandomFallingBlocks(frequency, hitMin, hitMax, fallSpeed) {
+    let hitAdd = 1 + hitMax - hitMin;
     if (globalCount % frequency === 0) {
         let escape = 0;
         while (escape < 15) {
-            block = new Block(10+Math.random()*(580-blockWidth), -20, blockWidth, blockHeight, 'white', randomInt(hitMax), fallSpeed)
+            block = new Block(10+Math.random()*(580-blockWidth), -20, blockWidth, blockHeight, 'white', hitMin - 1 + randomInt(hitAdd), fallSpeed)
             let closest = findClosest(block.x, block.y, arrBlocks, 'distance')
         
             if (closest > blockWidth+15 || closest === undefined) {
@@ -305,7 +313,7 @@ if (arrBalls.length > 0 && arr.length > 0)
                     //walls should only ever bounce a ball down 
                     if (arr === arrWalls) {
                         arrBalls[i].angle *= -1;
-                        console.log('arrWalls hit', arrBalls[i].angle)
+                        // console.log('arrWalls hit', arrBalls[i].angle)
                     } else {
                     arrBalls[i].angle *= -1
                     // +180 
@@ -347,7 +355,7 @@ function randomInt(x) {
 function newRandomBall(x, y) {
     if (y < 25) {
         y = 25
-        console.log('AND WE PUSHED IT SOUTH')
+        // console.log('AND WE PUSHED IT SOUTH')
     }
     ball = new Ball(x, y, 'white', 6, 3, randAngle())
     arrBalls.push(ball);
@@ -399,4 +407,28 @@ function findClosest(x, y, arr, value) {
     } else {
         return closest;
     }
+}
+
+function despawn(arr) {
+    for (let i = 0; i < arr.length; i++) {
+        if (
+            arr[i].x < -50  || 
+            arr[i].x > 650 || 
+            arr[i].y < -50 || 
+            arr[i].y > 700  
+        ) {
+            arr.splice(i, 1);
+            i--;
+        }
+    }
+}
+
+function difficulty() {
+    if (score > 50 && score <= 100) {
+        maxNum = 3;
+    } else if (score > 100 && score <= 150) {
+        maxNum = 4;
+    } else if (score > 150 && score <= 200) {
+        maxNum = 5;
+    } 
 }
