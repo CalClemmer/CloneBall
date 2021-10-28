@@ -97,9 +97,6 @@ class Ball {
         this.speed = speed
         this.angle = angle
 
-        //here we try to implement a janky fix to not be stuck :D or maybe not
-        //this.stuck = 0
-        //this.cooldown = 0
     }
 
     render() {
@@ -204,9 +201,18 @@ function gameLoop() {
     // arrSpinners.forEach(element => element.render());
     // arrSquares.forEach(element => element.render());
     createRandomFallingBlocks(30, minNum, maxNum, 0.3)
+
+    // increase difficulty 
+    difficulty();
     globalCount++;
     }
 }
+// ==================DEBUGGING=====================
+document.addEventListener('keydown', function(evt) {
+    if (evt.key === 'c' && arrBalls.length < 3000) {
+        arrBalls.forEach(element => newRandomBall(element.x, element.y));
+    }
+})
 
 // ==================FUNCTIONS=====================
 function startMovement(e) {
@@ -311,6 +317,15 @@ if (arrBalls.length > 0 && arr.length > 0)
                     //this first if checks if it hits the top or bottom 
                 if (circle.x >= rectangle.x && circle.x <= rectangle.x + rectangle.w) {
                     //walls should only ever bounce a ball down 
+
+
+                    // trying to move the ball back where it was when it hits things
+                    // this.x += this.speed * Math.cos(this.angle);
+                    // this.y += +1 * this.speed * Math.sin(this.angle);
+
+                    arrBalls[i].x -= arrBalls[i].speed * Math.cos(arrBalls[i].angle) 
+                    arrBalls[i].y -= arrBalls[i].speed * Math.sin(arrBalls[i].angle)
+                    
                     if (arr === arrWalls) {
                         arrBalls[i].angle *= -1;
                         // console.log('arrWalls hit', arrBalls[i].angle)
@@ -372,17 +387,15 @@ function randAngle() {
 }
 
 function blockColor(num) {
-    switch (num) {
-        case (1):
+    if (num % 4 === 1) {
             return '#FF8888' 
-        case (2):
-            return '#FF9D5C'
-        case (3):
-            return '#88FF88'
-        case (4):
-            return '#8888FF'
-    } 
-    return '#AAA' 
+    } else if (num % 4 === 2) {
+        return '#FF9D5C'
+    } else if (num % 4 === 3) {
+        return '#88FF88'
+    } else if (num % 4 === 0) {
+        return '#8888FF'
+    }
 }
 
 function findClosest(x, y, arr, value) {
@@ -424,11 +437,25 @@ function despawn(arr) {
 }
 
 function difficulty() {
-    if (score > 50 && score <= 100) {
+    /*
+    // MANUAL AND BORING 
+
+    if (score > 30 && score <= 60) {
         maxNum = 3;
-    } else if (score > 100 && score <= 150) {
+    } else if (score > 60 && score <= 120) {
         maxNum = 4;
-    } else if (score > 150 && score <= 200) {
+    } else if (score > 120 && score <= 200) {
         maxNum = 5;
-    } 
+    } else if (score > 200 && score <= 300) {
+        minNum = 2;
+        maxNum = 5;
+    } else if (score > 300 && score <= 420) {
+        maxNum = 6;
+    }
+    */
+
+    // AUTOMATIC AND AWESOME
+    minNum = Math.floor(1) + 1
+    maxNum = Math.floor(Math.pow(score, 0.34)) + 2
+
 }
